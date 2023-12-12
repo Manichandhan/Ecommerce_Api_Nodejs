@@ -12,6 +12,9 @@ app.use(express.json());
 const apiRoutes = require('./routes/apiRoutes');
 app.use('/api', apiRoutes);
 
+// error handling
+const {errorHandler}=require('./error_handler/errorhandling')
+app.use(errorHandler)
 // Set up the server to listen on a port
 const PORT = process.env.PORT || 3000; // Use the default port 3000 or a port provided in the environment
 app.listen(PORT, () => {

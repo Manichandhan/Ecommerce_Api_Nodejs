@@ -1,7 +1,8 @@
 // Import Sequelize and the database connection instance
-const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/dbConnection'); 
+const { DataTypes, Model } = require("sequelize");
+const sequelize = require("../config/dbConnection");
 
+const bcrypt=require('bcrypt')
 // Define the User model
 class User extends Model {}
 
@@ -11,34 +12,48 @@ User.init(
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     username: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
+      allowNull: false,  
       validate: {
-        isEmail: true
+        isEmail: true,
+      },
+      set(val){
+        this.setDataValue('email',val.toLowerCase())
       }
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      set(val){
+        const hash=bcrypt.hashSync(val,12)
+        this.setDataValue('password',hash)
+      }
     },
-    address:{
-        type:DataTypes.STRING,
-        allowNull:true,
-    }
+    address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
   },
   {
     sequelize,
-    modelName: 'User',
-    timestamps: false    
+    modelName: "User",
+    indexes: [{ unique: true,fields:['username'] },{unique:true,fields:['email']}], 
+    timestamps: true,
+    createdAt: "createdUserAt",
+    paranoid: true,
+    deletedAt: "deletedUserAt",   
   }
 );
 
